@@ -5,14 +5,13 @@
 #include <stdlib.h>
 #include <math.h> 
 
-int hdr_ant_pkt::offset_;	///< to access ant packet header
-extern double r;		///< reinforcement factor
-extern int N;			///< number of neighbors of a node
-extern int NUM_NODES;		///< total number of nodes in the topology
+int hdr_ant_pkt::offset_;	
+extern double r;		
+extern int N;			
+extern int NUM_NODES;		
 
-///////////////////////////////////////////////////////////////////////////
-/// \brief tcl binding for new packet: Ant
-///////////////////////////////////////////////////////////////////////////
+/* Bind Tcl On New Packet */
+
 static class AntHeaderClass : public PacketHeaderClass {
  	public:
  	AntHeaderClass() : PacketHeaderClass("PacketHeader/Ant",sizeof(hdr_ant_pkt)) {
@@ -20,9 +19,8 @@ static class AntHeaderClass : public PacketHeaderClass {
  	}
  } class_rtProtoAnt_hdr;
 
-///////////////////////////////////////////////////////////////////////////
-/// \brief tcl binding for new Agent: Antnet
-///////////////////////////////////////////////////////////////////////////
+/* Bind New Agent -> AntNet */
+
 static class AntnetClass : public TclClass {
 	public:
 	AntnetClass() : TclClass("Agent/Antnet") {}
@@ -32,46 +30,40 @@ static class AntnetClass : public TclClass {
 	}
 } class_rtProtoAntnet;
  
-///////////////////////////////////////////////////////////////////////////
-/// tcl binding for agent parameters
-/// default values defined in ns-default.tcl
-///////////////////////////////////////////////////////////////////////////
+
  Antnet::Antnet(nsaddr_t id) : Agent(PT_ANT), ant_timer_(this), dmux_(0) {
 	
-	bind("num_nodes_", &num_nodes_);	// number of nodes in topology
-	bind("num_nodes_x_", &num_nodes_x_);	// number of nodes in row (for regular mesh topology)
-	bind("num_nodes_y_", &num_nodes_y_);	// number of nodes in column (for regular mesh topology)
-	bind("r_factor_", &r_factor_);		// reinforcement factor
-	bind("timer_ant_", &timer_ant_);	// timer for generation of forward ants
+	bind("num_nodes_", &num_nodes_);	
+	bind("num_nodes_x_", &num_nodes_x_);	
+	bind("num_nodes_y_", &num_nodes_y_);	
+	bind("r_factor_", &r_factor_);		
+	bind("timer_ant_", &timer_ant_);	
 	
-	ra_addr_ = id;		// agent address 
-	ant_seq_num_ = 0;	// initialize sequence number of ant packets to zero
+	ra_addr_ = id;		
+	ant_seq_num_ = 0;	
 }
 
-/////////////////////////////////////////////////////////////////
-/// commands that the agent can handle
-/////////////////////////////////////////////////////////////////
+
 int Antnet::command(int argc, const char*const* argv) {
 	if (argc == 2) {
-		if(strcasecmp(argv[1], "start") == 0) {	// begin AntNet algorithm
-			initialize_rtable();	// initialize routing tables
-			ant_timer_.resched(0.);	// schedule timer to begin ant generation now
+		if(strcasecmp(argv[1], "start") == 0) {	
+			initialize_rtable();	
+			ant_timer_.resched(0.);	
 			return TCL_OK;
 		}
-		else if(strcasecmp(argv[1], "stop") == 0) {	// stop AntNet algorithm
-			ant_timer_.cancel();	// cancel any scheduled timers
+		else if(strcasecmp(argv[1], "stop") == 0) {	
+			ant_timer_.cancel();	
 			return TCL_OK;
 		}
-		else if (strcasecmp(argv[1], "print_rtable") == 0) {	// print routing tables to a file
-			FILE *fp = fopen(file_rtable,"a");	// file name defined in antnet_common.h
+		else if (strcasecmp(argv[1], "print_rtable") == 0) {	
+			FILE *fp = fopen(file_rtable,"a");	/
 			fprintf(fp,"\nRouting table at node %d\n",addr());
 			fclose(fp);
-			rtable_.print();	// call method to print routing table
+			rtable_.print();	
 			return TCL_OK;
 		}
  	}
 	else if (argc == 3) {
-		// obtain corresponding dmux to carry packets
 		if (strcmp(argv[1], "port-dmux") == 0) {
 			dmux_ = (PortClassifier*)TclObject::lookup(argv[2]);
 			if (dmux_ == 0) {
@@ -80,7 +72,6 @@ int Antnet::command(int argc, const char*const* argv) {
  			}
 			return TCL_OK;
  		}
-		// obtain corresponding tracer
 		else if (strcmp(argv[1], "log-target") == 0 || strcmp(argv[1], "tracetarget") == 0) {
 			logtarget_ = (Trace*)TclObject::lookup(argv[2]);
 			if (logtarget_ == 0)
@@ -88,7 +79,7 @@ int Antnet::command(int argc, const char*const* argv) {
 			return TCL_OK;
 		}
 	}
-	// add node1 to neighbor list of node2 and vice-versa (we assume duplex link)
+
 	else if (argc == 4) {
 		if(strcmp(argv[1], "add-neighbor") == 0) {
 			Node *node1 = (Node*)TclObject::lookup(argv[2]);
@@ -97,13 +88,11 @@ int Antnet::command(int argc, const char*const* argv) {
 			return TCL_OK;
 		}
 	}
- 	// Pass the command to the base class
 	return Agent::command(argc, argv);
 }
 
-/////////////////////////////////////////////////////////////////
-/// Agent recieves ant packets
-/////////////////////////////////////////////////////////////////
+
+/* Receive Ant Packets */
 void Antnet::recv(Packet *p, Handler *h) {
 	struct hdr_cmn *ch = HDR_CMN(p);	// common header
 	struct hdr_ip *ih = HDR_IP(p);		// ip header
