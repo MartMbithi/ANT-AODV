@@ -1,42 +1,3 @@
-/* -*-	Mode:C++; c-basic-offset:8; tab-width:8; indent-tabs-mode:t -*- */
-/*
- * Copyright (c) 1997 Regents of the University of California.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the Computer Systems
- *	Engineering Group at Lawrence Berkeley Laboratory.
- * 4. Neither the name of the University nor of the Laboratory may be used
- *    to endorse or promote products derived from this software without
- *    specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * Ported from CMU/Monarch's code, appropriate copyright applies.
- * nov'98 -Padma.
- *
- * $Header: /cvsroot/nsnam/ns-2/trace/cmu-trace.cc,v 1.98 2011/10/02 22:32:35 tom_henderson Exp $
- */
-
 #include <packet.h>
 #include <ip.h>
 #include <tcp.h>
@@ -57,14 +18,12 @@
 #include <cmu-trace.h>
 #include <mobilenode.h>
 #include <simulator.h>
-//<zheng: add for 802.15.4>
 #include "wpan/p802_15_4pkt.h"
 #include "wpan/p802_15_4trace.h"
 #include "wpan/p802_15_4nam.h"
-//</zheng: add for 802.15.4>
 
 #include <antnet/ant_pkt.h>
-#include "diffusion/diff_header.h" // DIFFUSION -- Chalermek
+#include "diffusion/diff_header.h" 
 
 
 PacketTracer::PacketTracer() : next_(0)
@@ -100,9 +59,6 @@ void CMUTrace::addPacketTracer(PacketTracer *pt)
 }
 
 
-//#define LOG_POSITION
-
-//extern char* pt_names[];
 
 static class CMUTraceClass : public TclClass {
 public:
@@ -113,11 +69,9 @@ public:
 } cmutrace_class;
 
 
-//<zheng: ns 2.27 removed the following part, but we need it to control the broadcast radius>
 double CMUTrace::bradius = 0.0;
 double CMUTrace::radius_scaling_factor_ = 0.0;
 double CMUTrace::duration_scaling_factor_ = 0.0;
-//</zheng>
 
 CMUTrace::CMUTrace(const char *s, char t) : Trace(t)
 {
@@ -146,8 +100,7 @@ CMUTrace::CMUTrace(const char *s, char t) : Trace(t)
                 fprintf(stderr, "CMU Trace Initialized with invalid type\n");
                 exit(1);
         }
-// change wrt Mike's code
-//	assert(type_ == DROP || type_ == SEND || type_ == RECV);
+
 	assert(type_ == DROP || type_ == SEND || type_ == RECV
                || ((type_ == EOT) && (tracetype == TR_MAC)));
 
@@ -637,9 +590,6 @@ CMUTrace::format_tcp(Packet *p, int offset)
 	}
 }
 
-/* Armando L. Caro Jr. <acaro@@cis,udel,edu> 6/5/2002
- * (with help from Florina Almenrez <florina@@it,uc3m,es>)
- */
 void
 CMUTrace::format_sctp(Packet* p,int offset)
 {
@@ -1194,17 +1144,8 @@ CMUTrace::nam_format(Packet *p, int offset)
 	char colors[32];
 	int next_hop = -1 ;
 
-// change wrt Mike's code
 	assert(type_ != EOT);
 
-
-
-	//<zheng: add for 802.15.4>
-
-	//Actually we only need to handle MAC layer for nam (but should display dropping for other layers)
-	//if (strcmp(tracename,"MAC") != 0)
-	//if ((op != 'D')&&(op != 'd'))
-	//	return;
 
 	struct hdr_mac802_11 *mh = HDR_MAC802_11(p);
 	char ptype[11];
@@ -1227,7 +1168,7 @@ CMUTrace::nam_format(Packet *p, int offset)
 	  (mh->dh_fc.fc_subtype == MAC_Subtype_Command_GTSReq) ? "CM9"  :	//CMD: GTS request
 	  "UNKN"
 	  ) : packet_info.name(ch->ptype())));
-	//</zheng: add for 802.15.4>
+
         int dst = Address::instance().get_nodeaddr(ih->daddr());
 
 	nextnode = Node::get_node_by_address(ch->next_hop_);
@@ -1267,7 +1208,6 @@ CMUTrace::nam_format(Packet *p, int offset)
         else if (energyLevel == 3) 
 		strcpy(colors,"-c green -o black");
 
-	// A simple hack for scadds demo (fernandez's visit) -- Chalermek
 	int pkt_color = 0;
 	if (ch->ptype()==PT_DIFF) {
 		hdr_cdiff *dfh= HDR_CDIFF(p);
@@ -1276,7 +1216,6 @@ CMUTrace::nam_format(Packet *p, int offset)
 		}
 	}
 
-	//<zheng: add for 802.15.4>
 	if (Nam802_15_4::Nam_Status)
 	{
 		ATTRIBUTELINK *attr;
@@ -1301,7 +1240,6 @@ CMUTrace::nam_format(Packet *p, int offset)
 		if (HDR_LRWPAN(p)->attribute >= 32)
 			pkt_color = HDR_LRWPAN(p)->attribute;
 	}
-	//</zheng: add for 802.15.4>
 
 	// convert to nam format 
 	if (op == 's') op = 'h' ;
@@ -1312,7 +1250,7 @@ CMUTrace::nam_format(Packet *p, int offset)
 			Scheduler::instance().clock(),
 			src_,                           // this node
 			next_hop,
-			ptype,			//<zheng: modify for 802.15.4>packet_info.name(ch->ptype()),
+			ptype,			
 			ch->size(),
 			pkt_color,   
 			ch->uid(),
@@ -1325,7 +1263,7 @@ CMUTrace::nam_format(Packet *p, int offset)
 			Scheduler::instance().clock(),
 			src_,                           // this node
 			next_hop,
-			ptype,			//<zheng: modify for 802.15.4>packet_info.name(ch->ptype()),
+			ptype,			
 			ch->size(),
 			pkt_color,
 			ch->uid(),
@@ -1334,14 +1272,6 @@ CMUTrace::nam_format(Packet *p, int offset)
 		offset = strlen(pt_->nbuffer());
 		pt_->namdump();
 	}
-
-        // if nodes are too far from each other
-	// nam won't dump SEND event 'cuz it's
-	// gonna be dropped later anyway
-	// this value 250 is pre-calculated by using 
-	// two-ray ground refelction model with fixed
-	// transmission power 3.652e-10
-//	if ((type_ == SEND)  && (distance > 250 )) return ;
 
 	if(tracetype == TR_ROUTER && type_ == RECV && dst != -1 ) return ;
 	if(type_ == RECV && dst == -1 )dst = src_ ; //broadcasting event
@@ -1370,17 +1300,15 @@ CMUTrace::nam_format(Packet *p, int offset)
 		Scheduler::instance().clock(),
 		src_,                           // this node
 		next_hop,
-		ptype,			//<zheng: modify for 802.15.4>packet_info.name(ch->ptype()),
+		ptype,			/
 		ch->size(),
 		pkt_color,
 		ch->uid(),
 		tracename);
 
-//<zheng: ns 2.27 removed the following part, but we need it to control the broadcast radius>
 if (Nam802_15_4::Nam_Status)
 {
-	if ((strcmp(tracename, "AGT") != 0) || ((u_int32_t)(ih->daddr()) == IP_BROADCAST))		//<zheng: add: next_hop info not available at agent level>
-											//(doesn't really matter -- seems agent level has no effect on nam)
+	if ((strcmp(tracename, "AGT") != 0) || ((u_int32_t)(ih->daddr()) == IP_BROADCAST))		
 	if (next_hop == -1 && op == 'h') {
 		// print extra fields for broadcast packets
 
@@ -1405,7 +1333,6 @@ if (Nam802_15_4::Nam_Status)
 			duration);
 	}
 }
-//</zheng>
 
 	offset = strlen(pt_->nbuffer());
 	pt_->namdump();
@@ -1480,12 +1407,8 @@ void CMUTrace::format(Packet* p, const char *why)
 			if(pktTrc_ && pktTrc_->format_unknow(p, offset, pt_, newtrace_))
 				break;
 
-		/*<zheng: del -- there are many more new packet types added, like PT_EXP (poisson traffic belongs to this type)>
-			fprintf(stderr, "%s - invalid packet type (%s).\n",
-				__PRETTY_FUNCTION__, packet_info.name(ch->ptype()));
-			exit(1);
-		</zheng: del>*/
-			break;		//zheng: add
+		
+			break;		
 		}
 	}
 }
@@ -1581,11 +1504,8 @@ int CMUTrace::node_energy()
 	return 0;
 }
 
-//<zheng: ns 2.27 removed the following part, but we need it to control the broadcast radius>
 void CMUTrace::calculate_broadcast_parameters() {
-	// Calculate the maximum distance at which a packet can be received
-	// based on the two-ray reflection model using the current default
-	// values for Phy/WirelessPhy and Antenna/OmniAntenna.
+	
 
 	double P_t, P_r, G_t, G_r, h, L;
 	Tcl& tcl = Tcl::instance();
@@ -1603,7 +1523,6 @@ void CMUTrace::calculate_broadcast_parameters() {
 	tcl.evalc("Antenna/OmniAntenna set Z_");
 	h = atof(tcl.result());
 	bradius = pow(P_t*G_r*G_t*pow(h,4.0)/(P_r*L), 0.25);
-	//<zheng: add for 802.15.4>
 	//the above calculation is not accurate for short distance
 	double PI,freq,lambda,crossover_dist;
 	PI = 3.14159265359;
@@ -1613,7 +1532,6 @@ void CMUTrace::calculate_broadcast_parameters() {
 	crossover_dist = (4 * PI * h * h) / lambda;
 	if (bradius < crossover_dist)	//need re-calculation
 		bradius = pow(P_t * G_r * G_t * pow(lambda, 2.0)/(P_r * L), 0.5)/(4 * PI);
-	//</zheng: add for 802.15.4>
 
 	// Also get the scaling factors
 	tcl.evalc("CMUTrace set radius_scaling_factor_");
@@ -1621,4 +1539,3 @@ void CMUTrace::calculate_broadcast_parameters() {
 	tcl.evalc("CMUTrace set duration_scaling_factor_");
 	duration_scaling_factor_ = atof(tcl.result());
 }
-//</zheng>

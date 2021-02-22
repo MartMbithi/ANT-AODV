@@ -1,26 +1,28 @@
 
-# tcl script for AntNet algorithm on an arbitrary topology of 12 nodes
+#Simple TCL File to test installation of antnet algorithm
 
-#number of nodes
+#Node No.
 set sz 2
 
 #Create event Schedular
 set ns [new Simulator]
 
 #Open the Trace file
-set tf [open simple.out w]
+set tf [open tester.tr w]
 $ns trace-all $tf
 
 # nam trace initialization
-#set namtrace [open sooa-out.nam w]     ; # for wireless traces
+#set namtrace [open tester.nam w]     ;
+
 #$ns_ namtrace-all-wireless $namtrace $val(x) $val(y)
-set nf [open simple.nam w]
+set nf [open tester.nam w]
 $ns namtrace-all $nf
 
-#Create 12 nodes
+#Create 12 nodes in an adhoc network
 set n0 [$ns node]
 set n1 [$ns node]
-#Create links between the nodes
+
+#Link nodes
 $ns duplex-link $n0 $n1 512Mb 155ms DropTail
 
 #Create Antnet agents
@@ -31,10 +33,12 @@ set nn1 [new Agent/Antnet $n1]
 $ns attach-agent $n0 $nn0
 $ns attach-agent $n1 $nn1
 
-#Create connection between the nodes
+#Connect nodes
 $ns connect $nn0 $nn1
-#Add neighbors
+
+#Add node neighbors
 $ns at now "$nn0 add-neighbor $n0 $n1"
+
 # Set parameters and start time
 $nn0 set num_nodes_ 10
 $nn0 set timer_ant_ 0.03
@@ -44,6 +48,7 @@ $nn1 set num_nodes_ 10
 $nn1 set timer_ant_ 0.03
 $nn1 set r_factor_ 0.001
 $ns at 1.0  "$nn1 start"
+
 #Set stop time for AntNet algorithm
 $ns at 10.8 "$nn0 stop"
 $ns at 10.8 "$nn1 stop"
@@ -59,6 +64,8 @@ proc Finish {} {
         close $tf
 	exit 0
 }
+
 $ns  at 14.0 "Finish"
 # Start the simulator
+
 $ns  run
