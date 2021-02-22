@@ -1,38 +1,3 @@
-/* -*-	Mode:C++; c-basic-offset:8; tab-width:8; indent-tabs-mode:t -*- */
-/*
- * Copyright (c) 1997 Regents of the University of California.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *	This product includes software developed by the Computer Systems
- *	Engineering Group at Lawrence Berkeley Laboratory.
- * 4. Neither the name of the University nor of the Laboratory may be used
- *    to endorse or promote products derived from this software without
- *    specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- *
- * @(#) $Header: /cvsroot/nsnam/ns-2/common/packet.h,v 1.107 2010/05/09 22:28:41 tom_henderson Exp $ (LBL)
- */
 
 #ifndef ns_packet_h
 #define ns_packet_h
@@ -47,7 +12,7 @@
 #include "packet-stamp.h"
 #include "ns-process.h"
 
-// Used by wireless routing code to attach routing agent
+/* Attach Rounting Agents */
 #define RT_PORT		255	/* port that all route msgs are sent to */
 
 #define HDR_CMN(p)      (hdr_cmn::access(p))
@@ -67,19 +32,9 @@
 #define HDR_TORA(p)     (hdr_tora::access(p))
 #define HDR_IMEP(p)     (hdr_imep::access(p))
 #define HDR_CDIFF(p)    (hdr_cdiff::access(p))  /* chalermak's diffusion*/
-//#define HDR_DIFF(p)     (hdr_diff::access(p))  /* SCADD's diffusion ported into ns */
 #define HDR_LMS(p)		(hdr_lms::access(p))
 
-/* --------------------------------------------------------------------*/
 
-/*
- * modified ns-2.33, adding support for dynamic libraries
- * 
- * packet_t is changed from enum to unsigned int in order to allow
- * dynamic definition of  new packet types within dynamic libraries.
- * Pre-defined packet types are implemented as static const.
- * 
- */
 
 typedef unsigned int packet_t;
 
@@ -211,14 +166,6 @@ enum packetClass
   };
 
 
-/*
- * ns-2.33 adding support for dynamic libraries
- * 
- * The PacketClassifier class is needed to make
- * p_info::data_packet(packet_t) work also with dynamically defined
- * packet types.
- * 
- */
 class PacketClassifier
 {
 	public:
