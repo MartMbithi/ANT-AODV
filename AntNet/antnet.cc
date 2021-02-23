@@ -316,9 +316,6 @@ void Antnet::backward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-///////////////////////////////////////////////////////////////
-/// Method to return size of observation window
-///////////////////////////////////////////////////////////////
 int Antnet::get_win_size(nsaddr_t dest) {
 	int count = 0;
 	window_t::iterator iterWin = window_.find(dest);
@@ -330,12 +327,7 @@ int Antnet::get_win_size(nsaddr_t dest) {
 	return count;
 }
 
-////////////////////////////////////////////////////////////////////////////
-/// Method to update traffic model and calculate reinforcement factor (r).
-/// Presently, constant value of r is used.
-/// Value of r can be set form tcl script.
-/// Hence, traffic model is not used and this method is not called.
-///////////////////////////////////////////////////////////////////////////
+
 void Antnet::update_traffic(Packet* p) {
 	//update mean, variance, best.
 	struct traffic_matrix temp_traffic;
@@ -429,9 +421,7 @@ void Antnet::update_traffic(Packet* p) {
 	}
 }
 
-//////////////////////////////////////////////////////////
-/// Method to update routing table
-//////////////////////////////////////////////////////////
+
 void Antnet::update_table(Packet* p) {
 	
 	nsaddr_t dest, next;
@@ -463,9 +453,7 @@ void Antnet::update_table(Packet* p) {
 	}
 }
 
-//////////////////////////////////////////////////////////
-/// Method to initialize routing table
-//////////////////////////////////////////////////////////
+
 void Antnet::initialize_rtable() {
 	//NUM_NODES = num_nodes_x_ * num_nodes_y_;
 	NUM_NODES = num_nodes_;		// set number of nodes in topology (read from tcl script)
@@ -494,9 +482,6 @@ void Antnet::initialize_rtable() {
 	fclose(fp);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to print neighbors of a node
-//////////////////////////////////////////////////////////
 void
 Antnet::print_neighbors() {
 	nsaddr_t node_addr = addr();
@@ -512,29 +497,18 @@ Antnet::print_neighbors() {
 	}while(nb != NULL);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to add neighbors of a node
-/// Parameters: addresses of two neighbor nodes (n1, n2)
-/// We assume duplex links
-/// - Add n1 to neighbor list of n2
-/// - Add n2 to neighbor list of n1
-//////////////////////////////////////////////////////////
+
 void
 Antnet::add_Neighbor(Node *n1, Node *n2) {
 	n1->addNeighbor(n2);
 	n2->addNeighbor(n1);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to reset Ant timer
-//////////////////////////////////////////////////////////
+
 void Antnet::reset_ant_timer() {
 	ant_timer_.resched(timer_ant_);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to handle Ant timer expire event
-//////////////////////////////////////////////////////////
 void Ant_timer::expire(Event *e) {
 	// generate forward ant
 	agent_->send_ant_pkt();
