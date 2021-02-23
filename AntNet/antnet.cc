@@ -121,10 +121,8 @@ void Antnet::recv(Packet *p, Handler *h) {
 	}
 }
 
-/////////////////////////////////////////////////////////////////
-/// Method to send a forward ant
-/// Called when ant timer expires
-/////////////////////////////////////////////////////////////////
+/* Method to send a forward ant Called when ant timer expires */
+
 void Antnet::send_ant_pkt() {
 	nsaddr_t next, dest;
 	Packet* p = allocpkt();			// allocate new packet
@@ -167,10 +165,8 @@ void Antnet::send_ant_pkt() {
 	target_->recv(p);	// send forward ant packet
 }
 
-///////////////////////////////////////////////////////////////////
-/// Method to recieve Ant packet at the Agent
-/// Calls appropriate methods to process forward and backward ants
-///////////////////////////////////////////////////////////////////
+/* Method to recieve Ant packet at the Agent Calls appropriate methods to process forward and backward ants */
+
 void Antnet::recv_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);		// ip header
 	struct hdr_cmn* ch = HDR_CMN(p);	// common header
@@ -213,9 +209,8 @@ void Antnet::recv_ant_pkt(Packet* p) {
 	}
 }
 
-///////////////////////////////////////////////////////////////////
-/// Method to build meory of forward ant
-///////////////////////////////////////////////////////////////////
+/* Method to build meory of forward ant */
+
 void Antnet::memorize(Packet* p) {
 	struct hdr_ant_pkt* tmp = HDR_ANT_PKT(p);	// ant header
 	
@@ -242,10 +237,8 @@ void Antnet::memorize(Packet* p) {
 		fprintf(stdout,"adding %d to memory of pkt %d\n", addr(), tmp->pkt_seq_num());
 	}
 }
+/* Method to send forward ant packet to next hop node as determined by AntNet algorithm */
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Method to send forward ant packet to next hop node as determined by AntNet algorithm
-////////////////////////////////////////////////////////////////////////////////////////
 void Antnet::forward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);		// ip header
 	struct hdr_cmn* ch = HDR_CMN(p);	// common header
@@ -269,10 +262,8 @@ void Antnet::forward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// Method to create backward ant packet
-/// called when forward ant reaches destination node
-//////////////////////////////////////////////////////////////////////////
+/*  Method to create backward ant packet called when forward ant reaches destination node  */
+
 void Antnet::create_backward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);
 	struct hdr_cmn* ch = HDR_CMN(p);
@@ -297,10 +288,8 @@ void Antnet::create_backward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/// Method to send backward ant packet to next hop node as determined from memory
-/// called when agent recieves a backward ant
-//////////////////////////////////////////////////////////////////////////////////
+/* Method to send backward ant packet to next hop node as determined from memory called when agent recieves a backward ant
+ */
 void Antnet::backward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);
 	struct hdr_cmn* ch = HDR_CMN(p);
