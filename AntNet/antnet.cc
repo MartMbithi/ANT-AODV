@@ -121,10 +121,8 @@ void Antnet::recv(Packet *p, Handler *h) {
 	}
 }
 
-/////////////////////////////////////////////////////////////////
-/// Method to send a forward ant
-/// Called when ant timer expires
-/////////////////////////////////////////////////////////////////
+/* Method to send a forward ant Called when ant timer expires */
+
 void Antnet::send_ant_pkt() {
 	nsaddr_t next, dest;
 	Packet* p = allocpkt();			// allocate new packet
@@ -167,10 +165,8 @@ void Antnet::send_ant_pkt() {
 	target_->recv(p);	// send forward ant packet
 }
 
-///////////////////////////////////////////////////////////////////
-/// Method to recieve Ant packet at the Agent
-/// Calls appropriate methods to process forward and backward ants
-///////////////////////////////////////////////////////////////////
+/* Method to recieve Ant packet at the Agent Calls appropriate methods to process forward and backward ants */
+
 void Antnet::recv_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);		// ip header
 	struct hdr_cmn* ch = HDR_CMN(p);	// common header
@@ -213,9 +209,8 @@ void Antnet::recv_ant_pkt(Packet* p) {
 	}
 }
 
-///////////////////////////////////////////////////////////////////
-/// Method to build meory of forward ant
-///////////////////////////////////////////////////////////////////
+/* Method to build meory of forward ant */
+
 void Antnet::memorize(Packet* p) {
 	struct hdr_ant_pkt* tmp = HDR_ANT_PKT(p);	// ant header
 	
@@ -242,10 +237,8 @@ void Antnet::memorize(Packet* p) {
 		fprintf(stdout,"adding %d to memory of pkt %d\n", addr(), tmp->pkt_seq_num());
 	}
 }
+/* Method to send forward ant packet to next hop node as determined by AntNet algorithm */
 
-/////////////////////////////////////////////////////////////////////////////////////////
-/// Method to send forward ant packet to next hop node as determined by AntNet algorithm
-////////////////////////////////////////////////////////////////////////////////////////
 void Antnet::forward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);		// ip header
 	struct hdr_cmn* ch = HDR_CMN(p);	// common header
@@ -269,10 +262,8 @@ void Antnet::forward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-//////////////////////////////////////////////////////////////////////////
-/// Method to create backward ant packet
-/// called when forward ant reaches destination node
-//////////////////////////////////////////////////////////////////////////
+/*  Method to create backward ant packet called when forward ant reaches destination node  */
+
 void Antnet::create_backward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);
 	struct hdr_cmn* ch = HDR_CMN(p);
@@ -297,10 +288,8 @@ void Antnet::create_backward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/// Method to send backward ant packet to next hop node as determined from memory
-/// called when agent recieves a backward ant
-//////////////////////////////////////////////////////////////////////////////////
+/* Method to send backward ant packet to next hop node as determined from memory called when agent recieves a backward ant
+ */
 void Antnet::backward_ant_pkt(Packet* p) {
 	struct hdr_ip* ih = HDR_IP(p);
 	struct hdr_cmn* ch = HDR_CMN(p);
@@ -327,9 +316,6 @@ void Antnet::backward_ant_pkt(Packet* p) {
 	target_->recv(p);
 }
 
-///////////////////////////////////////////////////////////////
-/// Method to return size of observation window
-///////////////////////////////////////////////////////////////
 int Antnet::get_win_size(nsaddr_t dest) {
 	int count = 0;
 	window_t::iterator iterWin = window_.find(dest);
@@ -341,12 +327,7 @@ int Antnet::get_win_size(nsaddr_t dest) {
 	return count;
 }
 
-////////////////////////////////////////////////////////////////////////////
-/// Method to update traffic model and calculate reinforcement factor (r).
-/// Presently, constant value of r is used.
-/// Value of r can be set form tcl script.
-/// Hence, traffic model is not used and this method is not called.
-///////////////////////////////////////////////////////////////////////////
+
 void Antnet::update_traffic(Packet* p) {
 	//update mean, variance, best.
 	struct traffic_matrix temp_traffic;
@@ -440,9 +421,7 @@ void Antnet::update_traffic(Packet* p) {
 	}
 }
 
-//////////////////////////////////////////////////////////
-/// Method to update routing table
-//////////////////////////////////////////////////////////
+
 void Antnet::update_table(Packet* p) {
 	
 	nsaddr_t dest, next;
@@ -474,9 +453,7 @@ void Antnet::update_table(Packet* p) {
 	}
 }
 
-//////////////////////////////////////////////////////////
-/// Method to initialize routing table
-//////////////////////////////////////////////////////////
+
 void Antnet::initialize_rtable() {
 	//NUM_NODES = num_nodes_x_ * num_nodes_y_;
 	NUM_NODES = num_nodes_;		// set number of nodes in topology (read from tcl script)
@@ -505,9 +482,6 @@ void Antnet::initialize_rtable() {
 	fclose(fp);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to print neighbors of a node
-//////////////////////////////////////////////////////////
 void
 Antnet::print_neighbors() {
 	nsaddr_t node_addr = addr();
@@ -523,29 +497,18 @@ Antnet::print_neighbors() {
 	}while(nb != NULL);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to add neighbors of a node
-/// Parameters: addresses of two neighbor nodes (n1, n2)
-/// We assume duplex links
-/// - Add n1 to neighbor list of n2
-/// - Add n2 to neighbor list of n1
-//////////////////////////////////////////////////////////
+
 void
 Antnet::add_Neighbor(Node *n1, Node *n2) {
 	n1->addNeighbor(n2);
 	n2->addNeighbor(n1);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to reset Ant timer
-//////////////////////////////////////////////////////////
+
 void Antnet::reset_ant_timer() {
 	ant_timer_.resched(timer_ant_);
 }
 
-//////////////////////////////////////////////////////////
-/// Method to handle Ant timer expire event
-//////////////////////////////////////////////////////////
 void Ant_timer::expire(Event *e) {
 	// generate forward ant
 	agent_->send_ant_pkt();
