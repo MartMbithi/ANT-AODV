@@ -1,34 +1,4 @@
 
-/*
- * antnet.h
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License,
- * version 2, as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * If you are using this program for any publication, we kindly request that you cite:
- * "Ant Colony Optimisation Based Routing on NS-2", 
- * V. Laxmi, Lavina Jain and M. S. Gaur, 
- * International Conference on Wireless Communication and Sensor Networks (WCSN), 
- * India, December 2006.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
- *
- * Author: Lavina Jain
- *
- */
-
-////////////////////////////////////////////////
-/// \file antnet.h
-/// \brief Definition file for Agent Antnet
-////////////////////////////////////////////////
 
 #ifndef __antnet_h__
 #define __antnet_h__
@@ -59,9 +29,7 @@
 
 class Antnet;	// forward declaration
 
-////////////////////////////////////////////////////////////////////////////////////
-/// \brief Class to implement timer for interval between generation of forward ants
-///////////////////////////////////////////////////////////////////////////////////
+
 class Ant_timer: public TimerHandler {
 	public:
 		Ant_timer(Antnet* agent) : TimerHandler() {
@@ -72,11 +40,6 @@ class Ant_timer: public TimerHandler {
 		virtual void expire(Event* e);
 };
 
-///////////////////////////////////////////////
-/// \brief Class to implement Antnet agent
-///
-/// This agent implements AntNet algorithm
-///////////////////////////////////////////////
 class Antnet: public Agent {
 	
 	friend class Ant_timer;
